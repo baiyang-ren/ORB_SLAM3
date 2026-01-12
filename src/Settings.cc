@@ -335,6 +335,15 @@ namespace ORB_SLAM3 {
 
         //Load stereo extrinsic calibration
         if(cameraType_ == Rectified){
+            // For rectified stereo, Camera2 has the same intrinsics as Camera1
+            // Copy Camera1 calibration to Camera2
+            vector<float> vCalibration;
+            for(size_t i = 0; i < calibration1_->size(); i++){
+                vCalibration.push_back(calibration1_->getParameter(i));
+            }
+            calibration2_ = new Pinhole(vCalibration);
+            originalCalib2_ = new Pinhole(vCalibration);
+
             b_ = readParameter<float>(fSettings,"Stereo.b",found);
             bf_ = b_ * calibration1_->getParameter(0);
         }
