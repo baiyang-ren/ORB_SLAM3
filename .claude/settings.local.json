@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake:*)",
+      "Bash(dpkg:*)",
+      "Bash(rs-enumerate-devices:*)"
+    ]
+  }
+}

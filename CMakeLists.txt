@@ -40,6 +40,11 @@ MESSAGE(${OpenCV_VERSION})
 
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
+
+# Find Fast-DDS dependencies before RealSense
+find_package(fastcdr QUIET)
+find_package(fastrtps QUIET)
+
 find_package(realsense2)
 
 include_directories(
