@@ -91,4 +91,5 @@ my_settings.txt
 borrar/*
 
 */ExecMean.txt
-settings.local.json
+data/*
+*log

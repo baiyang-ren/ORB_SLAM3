@@ -1,0 +1,19 @@
+# Colcon build artifacts
+build/
+install/
+log/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ROS bag files (optional - uncomment if you don't want to track bags)
+# *.bag
+# *.db3

@@ -171,6 +171,9 @@ public:
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
 
+    // Save point cloud to PLY format (viewable in CloudCompare, MeshLab, etc.)
+    void SavePointCloudPLY(const string &filename);
+
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)
     int GetTrackingState();
