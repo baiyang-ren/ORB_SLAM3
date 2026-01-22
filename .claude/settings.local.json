@@ -3,7 +3,9 @@
     "allow": [
       "Bash(cmake:*)",
       "Bash(dpkg:*)",
-      "Bash(rs-enumerate-devices:*)"
+      "Bash(rs-enumerate-devices:*)",
+      "Bash(ldconfig:*)",
+      "Bash(make:*)"
     ]
   }
 }
