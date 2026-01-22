@@ -566,6 +566,50 @@ bool System::isShutDown() {
     return mbShutDown;
 }
 
+void System::SavePointCloudPLY(const string &filename)
+{
+    cout << endl << "Saving point cloud to " << filename << " ..." << endl;
+
+    vector<MapPoint*> vpMPs = mpAtlas->GetAllMapPoints();
+
+    // Count valid points
+    int validPoints = 0;
+    for(size_t i=0; i<vpMPs.size(); i++)
+    {
+        MapPoint* pMP = vpMPs[i];
+        if(pMP && !pMP->isBad())
+            validPoints++;
+    }
+
+    ofstream f;
+    f.open(filename.c_str());
+
+    // PLY header
+    f << "ply" << endl;
+    f << "format ascii 1.0" << endl;
+    f << "element vertex " << validPoints << endl;
+    f << "property float x" << endl;
+    f << "property float y" << endl;
+    f << "property float z" << endl;
+    f << "end_header" << endl;
+
+    f << fixed;
+
+    // Write points
+    for(size_t i=0; i<vpMPs.size(); i++)
+    {
+        MapPoint* pMP = vpMPs[i];
+        if(pMP && !pMP->isBad())
+        {
+            Eigen::Vector3f pos = pMP->GetWorldPos();
+            f << setprecision(7) << pos(0) << " " << pos(1) << " " << pos(2) << endl;
+        }
+    }
+
+    f.close();
+    cout << "Point cloud saved! (" << validPoints << " points)" << endl;
+}
+
 void System::SaveTrajectoryTUM(const string &filename)
 {
     cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;

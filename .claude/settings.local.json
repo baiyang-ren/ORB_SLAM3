@@ -3,7 +3,35 @@
     "allow": [
       "Bash(cmake:*)",
       "Bash(dpkg:*)",
-      "Bash(rs-enumerate-devices:*)"
+      "Bash(rs-enumerate-devices:*)",
+      "Bash(./Examples/Stereo-Inertial/stereo_inertial_euroc:*)",
+      "Bash(python3:*)",
+      "Bash(./Examples/Stereo/stereo_euroc:*)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(source:*)",
+      "Bash(colcon build:*)",
+      "Bash(apt list:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(pip install:*)",
+      "Bash(export LD_LIBRARY_PATH:*)",
+      "Bash(timeout 15 ros2 run:*)",
+      "Bash(ros2 launch:*)",
+      "Bash(ros2 topic:*)",
+      "Bash(ros2 node info:*)",
+      "Bash(ros2 node list:*)",
+      "Bash(make stereo_inertial_euroc:*)",
+      "Bash(ros2 pkg list:*)",
+      "Bash(pkill:*)",
+      "Bash(ldd:*)",
+      "Bash(/home/cv/cuesinc-AI/ORB_SLAM3/Examples/ROS/install/orb_slam3_ros2/lib/orb_slam3_ros2/stereo_inertial:*)",
+      "Bash(LD_DEBUG=libs /home/cv/cuesinc-AI/ORB_SLAM3/Examples/ROS/install/orb_slam3_ros2/lib/orb_slam3_ros2/stereo_inertial:*)",
+      "Bash(LD_LIBRARY_PATH=/opt/ros/jazzy/lib:/home/cv/cuesinc-AI/ORB_SLAM3/lib:/home/cv/cuesinc-AI/ORB_SLAM3/Thirdparty/DBoW2/lib:/home/cv/cuesinc-AI/ORB_SLAM3/Thirdparty/g2o/lib /home/cv/cuesinc-AI/ORB_SLAM3/Examples/ROS/install/orb_slam3_ros2/lib/orb_slam3_ros2/stereo_inertial:*)",
+      "Bash(env LD_LIBRARY_PATH=\"/opt/ros/jazzy/lib:/home/cv/cuesinc-AI/ORB_SLAM3/lib:/home/cv/cuesinc-AI/ORB_SLAM3/Thirdparty/DBoW2/lib:/home/cv/cuesinc-AI/ORB_SLAM3/Thirdparty/g2o/lib\" /home/cv/cuesinc-AI/ORB_SLAM3/Examples/ROS/install/orb_slam3_ros2/lib/orb_slam3_ros2/stereo_inertial:*)",
+      "Bash(strace:*)",
+      "Bash(readelf:*)",
+      "Bash(getcap:*)",
+      "Bash(sudo setcap:*)"
     ]
   }
 }
