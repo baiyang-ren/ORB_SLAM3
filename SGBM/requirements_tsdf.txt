@@ -1,0 +1,9 @@
+# Python dependencies for TSDF fusion
+# Install with: pip install -r requirements_tsdf.txt
+
+# Core requirement for TSDF fusion
+open3d>=0.18.0
+
+# Already installed (from SGBM pipeline)
+numpy>=1.20.0
+opencv-python>=4.5.0

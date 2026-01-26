@@ -150,6 +150,10 @@ add_executable(rgbd_tum
         Examples/RGB-D/rgbd_tum.cc)
 target_link_libraries(rgbd_tum ${PROJECT_NAME})
 
+add_executable(rgbd_euroc
+        Examples/RGB-D/rgbd_euroc.cc)
+target_link_libraries(rgbd_euroc ${PROJECT_NAME})
+
 if(realsense2_FOUND)
     add_executable(rgbd_realsense_D435i
             Examples/RGB-D/rgbd_realsense_D435i.cc)

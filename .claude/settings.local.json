@@ -31,7 +31,11 @@
       "Bash(strace:*)",
       "Bash(readelf:*)",
       "Bash(getcap:*)",
-      "Bash(sudo setcap:*)"
+      "Bash(sudo setcap:*)",
+      "Bash(/home/baiyang/octa/ORB_SLAM3/Examples/RGB-D/rgbd_euroc)",
+      "Bash(chmod:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

@@ -1,0 +1,10 @@
+# Python dependencies for dense 3D reconstruction pipeline
+# Install with: pip install -r requirements_dense_recon.txt
+
+numpy>=1.20.0
+opencv-python>=4.5.0
+opencv-contrib-python>=4.5.0  # For ximgproc (WLS filter)
+PyYAML>=5.4.0
+
+# Optional but recommended for TSDF fusion (next step)
+# open3d>=0.13.0
