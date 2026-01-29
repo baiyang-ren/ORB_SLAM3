@@ -35,7 +35,12 @@
       "Bash(/home/baiyang/octa/ORB_SLAM3/Examples/RGB-D/rgbd_euroc)",
       "Bash(chmod:*)",
       "Bash(find:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(./build.sh:*)",
+      "Bash(ulimit:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(getfacl:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

@@ -77,8 +77,8 @@ Viewer.PointSize: 2.0
 Viewer.CameraSize: 0.08
 Viewer.CameraLineWidth: 3.0
 Viewer.ViewpointX: 0.0
-Viewer.ViewpointY: -0.7
-Viewer.ViewpointZ: -3.5
+Viewer.ViewpointY: -10.0
+Viewer.ViewpointZ: 10.0
 Viewer.ViewpointF: 500.0
 
 # System.SaveAtlasToFile: "my_map1"  # Disabled - SaveAtlas has serialization bugs

@@ -159,16 +159,10 @@ int main(int argc, char **argv) {
     rs2::pipeline pipe;
     // Create a configuration for configuring the pipeline with a non default profile
     rs2::config cfg;
-    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 640, 480, RS2_FORMAT_Y8, 30);
-    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 640, 480, RS2_FORMAT_Y8, 30);
+    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 848, 480, RS2_FORMAT_Y8, 30);
+    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 848, 480, RS2_FORMAT_Y8, 30);
     cfg.enable_stream(RS2_STREAM_ACCEL, RS2_FORMAT_MOTION_XYZ32F);
     cfg.enable_stream(RS2_STREAM_GYRO, RS2_FORMAT_MOTION_XYZ32F);
-
-    // Create SLAM system BEFORE starting RealSense pipeline so that the
-    // Viewer thread can initialise Pangolin/EGL before RealSense spawns its
-    // internal threads (avoids Mesa EGL dlopen crash with many threads).
-    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_STEREO, true, 0, file_name);
-    float imageScale = SLAM.GetImageScale();
 
     // IMU callback
     std::mutex imu_mutex;
@@ -187,7 +181,7 @@ int main(int argc, char **argv) {
     vector<rs2_vector> v_accel_data_sync;
 
     cv::Mat imCV, imRightCV;
-    int width_img = 640, height_img = 480;
+    int width_img, height_img;
     double timestamp_image = -1.0;
     bool image_ready = false;
     int count_im_buffer = 0; // count dropped frames
@@ -321,6 +315,10 @@ int main(int argc, char **argv) {
         intrinsics_right.coeffs[2] << ", " << intrinsics_right.coeffs[3] << ", " << intrinsics_right.coeffs[4] << ", " << std::endl;
     std::cout << " Model = " << intrinsics_right.model << std::endl;
 
+
+    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_STEREO, true, 0, file_name);
+    float imageScale = SLAM.GetImageScale();
 
     double timestamp;
     cv::Mat im, imRight;

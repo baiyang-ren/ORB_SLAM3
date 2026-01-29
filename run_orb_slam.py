@@ -6,11 +6,11 @@ def run_orb_slam_command():
     """
     Executes the ORB_SLAM3 stereo-inertial command and moves trajectory files to output directory.
     """
-    name = "20260122_172507"
-    input_data_base_dir = f"/home/baiyang/octa/recording_share/dataset_{name}/"
+    name = "20260129_115333"
+    input_data_base_dir = f"/home/cv/cuesinc-AI/recording_share/dataset_{name}/"
 
     # Define the output directory for trajectory files. CHANGE THIS to your desired location.
-    output_trajectory_dir = f"/home/baiyang/octa/recording_share/dataset_{name}/"
+    output_trajectory_dir = f"/home/cv/cuesinc-AI/recording_share/dataset_{name}/"
 
     # Trajectory name (5th argument for stereo_inertial_euroc)
     trajectory_name = f"dataset_{name}"
@@ -20,9 +20,12 @@ def run_orb_slam_command():
 
     # Construct the command as a list of arguments
     command = [
-        "./Examples/Stereo-Inertial/stereo_inertial_euroc",
+        # "./Examples/Stereo-Inertial/stereo_inertial_euroc",
+        "./Examples/Stereo/stereo_euroc",
+        # "./Examples/Monocular-Inertial/mono_inertial_euroc",
+        # "./Examples/Monocular/mono_euroc",
         "Vocabulary/ORBvoc.txt",
-        "Examples/Stereo-Inertial/RealSense_D435i.yaml",
+        "Examples/Stereo-Inertial/RealSense_D435i_easyFeature.yaml",
         input_data_base_dir,
         os.path.join(input_data_base_dir, "mav0", "timestamps.txt"),
         trajectory_name  # Add trajectory name as 5th argument
@@ -51,7 +54,7 @@ def run_orb_slam_command():
     # Always attempt to move trajectory files, even if command crashed
     # (ORB-SLAM3 usually saves files before crashing)
     print("\nChecking for trajectory files...")
-    orb_slam3_dir = "/home/baiyang/octa/ORB_SLAM3"
+    orb_slam3_dir = "/home/cv/cuesinc-AI/ORB_SLAM3"
     kf_file = f"kf_{trajectory_name}.txt"
     f_file = f"f_{trajectory_name}.txt"
 

@@ -44,10 +44,6 @@ void exit_loop_handler(int s){
 
 }
 
-void interpolateData(const std::vector<double> &vBase_times,
-                     std::vector<rs2_vector> &vInterp_data, std::vector<double> &vInterp_times,
-                     const rs2_vector &prev_data, const double &prev_time);
-
 rs2_vector interpolateMeasure(const double target_time,
                               const rs2_vector current_data, const double current_time,
                               const rs2_vector prev_data, const double prev_time);
@@ -98,7 +94,7 @@ int main(int argc, char **argv) {
 
     if (argc < 3 || argc > 4) {
         cerr << endl
-             << "Usage: ./stereo_inertial_realsense_D435i path_to_vocabulary path_to_settings (trajectory_file_name)"
+             << "Usage: ./stereo_realsense_D435i path_to_vocabulary path_to_settings (trajectory_file_name)"
              << endl;
         return 1;
     }
@@ -148,46 +144,21 @@ int main(int argc, char **argv) {
                 // RGB camera (not used here...)
                 sensor.set_option(RS2_OPTION_EXPOSURE,100.f);
             }
-
-            if (index == 3){
-                sensor.set_option(RS2_OPTION_ENABLE_MOTION_CORRECTION,0);
-            }
-
         }
 
     // Declare RealSense pipeline, encapsulating the actual device and sensors
     rs2::pipeline pipe;
     // Create a configuration for configuring the pipeline with a non default profile
     rs2::config cfg;
-    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 640, 480, RS2_FORMAT_Y8, 30);
-    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 640, 480, RS2_FORMAT_Y8, 30);
-    cfg.enable_stream(RS2_STREAM_ACCEL, RS2_FORMAT_MOTION_XYZ32F);
-    cfg.enable_stream(RS2_STREAM_GYRO, RS2_FORMAT_MOTION_XYZ32F);
-
-    // Create SLAM system BEFORE starting RealSense pipeline so that the
-    // Viewer thread can initialise Pangolin/EGL before RealSense spawns its
-    // internal threads (avoids Mesa EGL dlopen crash with many threads).
-    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_STEREO, true, 0, file_name);
-    float imageScale = SLAM.GetImageScale();
+    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 848, 480, RS2_FORMAT_Y8, 30);
+    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 848, 480, RS2_FORMAT_Y8, 30);
 
     // IMU callback
     std::mutex imu_mutex;
     std::condition_variable cond_image_rec;
 
-    vector<double> v_accel_timestamp;
-    vector<rs2_vector> v_accel_data;
-    vector<double> v_gyro_timestamp;
-    vector<rs2_vector> v_gyro_data;
-
-    double prev_accel_timestamp = 0;
-    rs2_vector prev_accel_data;
-    double current_accel_timestamp = 0;
-    rs2_vector current_accel_data;
-    vector<double> v_accel_timestamp_sync;
-    vector<rs2_vector> v_accel_data_sync;
-
     cv::Mat imCV, imRightCV;
-    int width_img = 640, height_img = 480;
+    int width_img, height_img;
     double timestamp_image = -1.0;
     bool image_ready = false;
     int count_im_buffer = 0; // count dropped frames
@@ -216,71 +187,15 @@ int main(int argc, char **argv) {
             timestamp_image = fs.get_timestamp()*1e-3;
             image_ready = true;
 
-            while(v_gyro_timestamp.size() > v_accel_timestamp_sync.size())
-            {
-
-                int index = v_accel_timestamp_sync.size();
-                double target_time = v_gyro_timestamp[index];
-
-                v_accel_data_sync.push_back(current_accel_data);
-                v_accel_timestamp_sync.push_back(target_time);
-            }
-
             lock.unlock();
             cond_image_rec.notify_all();
-        }
-        else if (rs2::motion_frame m_frame = frame.as<rs2::motion_frame>())
-        {
-            if (m_frame.get_profile().stream_name() == "Gyro")
-            {
-                // It runs at 200Hz
-                v_gyro_data.push_back(m_frame.get_motion_data());
-                v_gyro_timestamp.push_back((m_frame.get_timestamp()+offset)*1e-3);
-                //rs2_vector gyro_sample = m_frame.get_motion_data();
-                //std::cout << "Gyro:" << gyro_sample.x << ", " << gyro_sample.y << ", " << gyro_sample.z << std::endl;
-            }
-            else if (m_frame.get_profile().stream_name() == "Accel")
-            {
-                // It runs at 60Hz
-                prev_accel_timestamp = current_accel_timestamp;
-                prev_accel_data = current_accel_data;
-
-                current_accel_data = m_frame.get_motion_data();
-                current_accel_timestamp = (m_frame.get_timestamp()+offset)*1e-3;
-
-                while(v_gyro_timestamp.size() > v_accel_timestamp_sync.size())
-                {
-                    int index = v_accel_timestamp_sync.size();
-                    double target_time = v_gyro_timestamp[index];
-
-                    rs2_vector interp_data = interpolateMeasure(target_time, current_accel_data, current_accel_timestamp,
-                                                                prev_accel_data, prev_accel_timestamp);
-
-                    v_accel_data_sync.push_back(interp_data);
-                    v_accel_timestamp_sync.push_back(target_time);
-
-                }
-                // std::cout << "Accel:" << current_accel_data.x << ", " << current_accel_data.y << ", " << current_accel_data.z << std::endl;
-            }
         }
     };
 
     rs2::pipeline_profile pipe_profile = pipe.start(cfg, imu_callback);
 
-    vector<ORB_SLAM3::IMU::Point> vImuMeas;
     rs2::stream_profile cam_left = pipe_profile.get_stream(RS2_STREAM_INFRARED, 1);
     rs2::stream_profile cam_right = pipe_profile.get_stream(RS2_STREAM_INFRARED, 2);
-
-
-    rs2::stream_profile imu_stream = pipe_profile.get_stream(RS2_STREAM_GYRO);
-    float* Rbc = cam_left.get_extrinsics_to(imu_stream).rotation;
-    float* tbc = cam_left.get_extrinsics_to(imu_stream).translation;
-    std::cout << "Tbc (left) = " << std::endl;
-    for(int i = 0; i<3; i++){
-        for(int j = 0; j<3; j++)
-            std::cout << Rbc[i*3 + j] << ", ";
-        std::cout << tbc[i] << "\n";
-    }
 
     float* Rlr = cam_right.get_extrinsics_to(cam_left).rotation;
     float* tlr = cam_right.get_extrinsics_to(cam_left).translation;
@@ -322,14 +237,12 @@ int main(int argc, char **argv) {
     std::cout << " Model = " << intrinsics_right.model << std::endl;
 
 
+    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::STEREO, true, 0, file_name);
+    float imageScale = SLAM.GetImageScale();
+
     double timestamp;
     cv::Mat im, imRight;
-
-    // Clear IMU vectors
-    v_gyro_data.clear();
-    v_gyro_timestamp.clear();
-    v_accel_data_sync.clear();
-    v_accel_timestamp_sync.clear();
 
     double t_resize = 0.f;
     double t_track = 0.f;
@@ -356,43 +269,11 @@ int main(int argc, char **argv) {
                 cout << count_im_buffer -1 << " dropped frs\n";
             count_im_buffer = 0;
 
-            while(v_gyro_timestamp.size() > v_accel_timestamp_sync.size())
-            {
-                int index = v_accel_timestamp_sync.size();
-                double target_time = v_gyro_timestamp[index];
-
-                rs2_vector interp_data = interpolateMeasure(target_time, current_accel_data, current_accel_timestamp, prev_accel_data, prev_accel_timestamp);
-
-                v_accel_data_sync.push_back(interp_data);
-                // v_accel_data_sync.push_back(current_accel_data); // 0 interpolation
-                v_accel_timestamp_sync.push_back(target_time);
-            }
-
-            // Copy the IMU data
-            vGyro = v_gyro_data;
-            vGyro_times = v_gyro_timestamp;
-            vAccel = v_accel_data_sync;
-            vAccel_times = v_accel_timestamp_sync;
             timestamp = timestamp_image;
             im = imCV.clone();
             imRight = imRightCV.clone();
 
-            // Clear IMU vectors
-            v_gyro_data.clear();
-            v_gyro_timestamp.clear();
-            v_accel_data_sync.clear();
-            v_accel_timestamp_sync.clear();
-
             image_ready = false;
-        }
-
-
-        for(int i=0; i<vGyro.size(); ++i)
-        {
-            ORB_SLAM3::IMU::Point lastPoint(vAccel[i].x, vAccel[i].y, vAccel[i].z,
-                                  vGyro[i].x, vGyro[i].y, vGyro[i].z,
-                                  vGyro_times[i]);
-            vImuMeas.push_back(lastPoint);
         }
 
         if(imageScale != 1.f)
@@ -428,7 +309,7 @@ int main(int argc, char **argv) {
     #endif
 #endif
         // Stereo images are already rectified.
-        SLAM.TrackStereo(im, imRight, timestamp, vImuMeas);
+        SLAM.TrackStereo(im, imRight, timestamp);
 #ifdef REGISTER_TIMES
     #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t_End_Track = std::chrono::steady_clock::now();
@@ -438,50 +319,6 @@ int main(int argc, char **argv) {
         t_track = t_resize + std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(t_End_Track - t_Start_Track).count();
         SLAM.InsertTrackTime(t_track);
 #endif
-
-
-
-        // Clear the previous IMU measurements to load the new ones
-        vImuMeas.clear();
     }
     cout << "System shutdown!\n";
-}
-
-rs2_vector interpolateMeasure(const double target_time,
-                              const rs2_vector current_data, const double current_time,
-                              const rs2_vector prev_data, const double prev_time)
-{
-
-    // If there are not previous information, the current data is propagated
-    if(prev_time == 0)
-    {
-        return current_data;
-    }
-
-    rs2_vector increment;
-    rs2_vector value_interp;
-
-    if(target_time > current_time) {
-        value_interp = current_data;
-    }
-    else if(target_time > prev_time)
-    {
-        increment.x = current_data.x - prev_data.x;
-        increment.y = current_data.y - prev_data.y;
-        increment.z = current_data.z - prev_data.z;
-
-        double factor = (target_time - prev_time) / (current_time - prev_time);
-
-        value_interp.x = prev_data.x + increment.x * factor;
-        value_interp.y = prev_data.y + increment.y * factor;
-        value_interp.z = prev_data.z + increment.z * factor;
-
-        // zero interpolation
-        value_interp = current_data;
-    }
-    else {
-        value_interp = prev_data;
-    }
-
-    return value_interp;
 }
