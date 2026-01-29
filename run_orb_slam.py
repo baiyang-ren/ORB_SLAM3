@@ -6,11 +6,15 @@ def run_orb_slam_command():
     """
     Executes the ORB_SLAM3 stereo-inertial command and moves trajectory files to output directory.
     """
+    # Automatically detect paths: script is in ORB_SLAM3/, so parent is the workspace root
+    orb_slam3_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(orb_slam3_dir)
+
     name = "20260129_115333"
-    input_data_base_dir = f"/home/cv/cuesinc-AI/recording_share/dataset_{name}/"
+    input_data_base_dir = os.path.join(base_dir, "recording_share", f"dataset_{name}", "")
 
     # Define the output directory for trajectory files. CHANGE THIS to your desired location.
-    output_trajectory_dir = f"/home/cv/cuesinc-AI/recording_share/dataset_{name}/"
+    output_trajectory_dir = os.path.join(base_dir, "recording_share", f"dataset_{name}", "")
 
     # Trajectory name (5th argument for stereo_inertial_euroc)
     trajectory_name = f"dataset_{name}"
@@ -54,7 +58,6 @@ def run_orb_slam_command():
     # Always attempt to move trajectory files, even if command crashed
     # (ORB-SLAM3 usually saves files before crashing)
     print("\nChecking for trajectory files...")
-    orb_slam3_dir = "/home/cv/cuesinc-AI/ORB_SLAM3"
     kf_file = f"kf_{trajectory_name}.txt"
     f_file = f"f_{trajectory_name}.txt"
 
